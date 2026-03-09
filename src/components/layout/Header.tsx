@@ -36,8 +36,8 @@ export function Header({ onMobileMenuToggle, mobileOpen, onSearchOpen }: HeaderP
           </span>
           <ChevronRight size={14} className="text-zinc-600" />
           <span className="text-sm text-zinc-500">Docs</span>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-red-400 bg-red-500/15 border border-red-500/30 px-2 py-0.5 rounded">
-            Beta
+          <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400 bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 rounded">
+            Developer Preview
           </span>
         </div>
 

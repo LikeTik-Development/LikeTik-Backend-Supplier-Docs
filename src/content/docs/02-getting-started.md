@@ -14,11 +14,11 @@ Onboarding is **admin-provisioned**. There is no self-service signup. To join as
 3. **You receive your credentials** from the LikeTik team, including:
    - **Client ID** , your OAuth2 client identifier
    - **Client Secret** , your OAuth2 client secret (keep this confidential)
-   - **API Base URL** , the base URL for all API requests. The current beta URL is `https://backend-test.liketik.com/`
+   - **API Base URL** , the base URL for all API requests. The current URL is `https://backend-test.liketik.com/`
    - **Keycloak Realm URL** , the identity provider URL for authentication (referred to as `{issuer_uri}` throughout this guide)
    - **Required Scopes** , `openid` and `products.supplier` (include both scopes in every token request)
 
-> **Important:** You are connecting to our **testing environment** at `https://backend-test.liketik.com/`. This is not the final production system. Products you push here are for integration testing only. The production URL will be provided once your integration is verified and the API is out of beta. `{issuer_uri}` is a placeholder for the Keycloak realm URL you receive during onboarding.
+> You are connecting to our **testing environment** at `https://backend-test.liketik.com/`. Breaking changes may occur. Products you push here are for integration testing only. The production URL will be provided once your integration is verified. `{issuer_uri}` is a placeholder for the Keycloak realm URL you receive during onboarding.
 
 ### Next Steps After Receiving Credentials
 

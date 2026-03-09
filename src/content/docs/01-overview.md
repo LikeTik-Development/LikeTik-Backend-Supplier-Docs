@@ -5,7 +5,7 @@ group: Getting Started
 order: 1
 ---
 
-> **Important:** This API is in **beta** and you are connecting to our **testing environment**. Breaking changes to endpoints, schemas, and auth flows can still happen. Products you push here are for integration testing only, not a live production system. Always check the [Swagger UI](https://backend-test.liketik.com/docs/supplier/index.html) for the latest endpoint details and try out requests directly.
+> This API is under active development — breaking changes to endpoints, schemas, and auth flows may occur. Always check the [Swagger UI](https://backend-test.liketik.com/docs/supplier/index.html) for the latest details.
 
 The current API base URL is:
 
