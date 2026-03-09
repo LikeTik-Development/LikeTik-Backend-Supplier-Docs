@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from "motion/react";
 import Markdoc from "@markdoc/markdoc";
 import React from "react";
 
-import { navigate } from "@/App.tsx";
+import { navigate, BASE } from "@/App.tsx";
 import { parseDoc, type ParsedDoc } from "@/markdoc/loader.ts";
 import { componentMap } from "@/markdoc/components.tsx";
 import { Header } from "@/components/layout/Header.tsx";
@@ -50,10 +50,11 @@ export function DocPage() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
 
-  // Extract slug from URL path
+  // Extract slug from URL path (strip base path, then /docs/ prefix)
   const getSlug = () => {
     const path = window.location.pathname;
-    return path.replace(/^\/docs\/?/, "") || "overview";
+    const relative = path.startsWith(BASE) ? path.slice(BASE.length) : path;
+    return relative.replace(/^\/docs\/?/, "") || "overview";
   };
 
   const [slug, setSlug] = useState(getSlug);

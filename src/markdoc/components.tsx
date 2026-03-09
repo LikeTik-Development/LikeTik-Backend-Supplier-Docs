@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { ExternalLink } from "lucide-react";
 
+import { navigate, BASE } from "@/App.tsx";
 import { CodeBlock } from "@/components/docs/CodeBlock.tsx";
 import { CollapsibleCodeBlock } from "@/components/docs/CollapsibleBlock.tsx";
 import { MermaidDiagram } from "@/components/docs/MermaidDiagram.tsx";
@@ -78,15 +79,47 @@ function Link({
   children: ReactNode;
 }) {
   const isExternal = href.startsWith("http://") || href.startsWith("https://");
+
+  if (!isExternal) {
+    const handleClick = (e: React.MouseEvent) => {
+      e.preventDefault();
+      const hashIndex = href.indexOf("#");
+      const pathname = hashIndex >= 0 ? href.slice(0, hashIndex) : href;
+      const hash = hashIndex >= 0 ? href.slice(hashIndex + 1) : null;
+
+      if (pathname) {
+        navigate(pathname);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+      if (hash) {
+        setTimeout(() => {
+          document.getElementById(hash)?.scrollIntoView({ behavior: "smooth" });
+        }, 100);
+      }
+    };
+
+    return (
+      <a
+        href={BASE + href}
+        title={title}
+        className="text-blue-400 hover:text-blue-300 transition-colors inline-flex items-center gap-1"
+        onClick={handleClick}
+      >
+        {children}
+      </a>
+    );
+  }
+
   return (
     <a
       href={href}
       title={title}
       className="text-blue-400 hover:text-blue-300 transition-colors inline-flex items-center gap-1"
-      {...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+      target="_blank"
+      rel="noopener noreferrer"
     >
       {children}
-      {isExternal && <ExternalLink size={12} className="inline-block" />}
+      <ExternalLink size={12} className="inline-block" />
     </a>
   );
 }

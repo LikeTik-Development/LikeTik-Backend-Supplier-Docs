@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
 import { DocPage } from "@/components/docs/DocPage.tsx";
 
+// Base path from Vite config — "/LikeTik-Backend-Supplier-Docs" on GitHub Pages, "" locally
+export const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+
 export function navigate(path: string) {
-  window.history.pushState({}, "", path);
+  window.history.pushState({}, "", BASE + path);
   window.dispatchEvent(new PopStateEvent("popstate"));
 }
 
@@ -23,7 +26,7 @@ export default function App() {
 
   // Root redirects to overview (Decision #14: no landing page)
   useEffect(() => {
-    if (path === "/" || path === "") {
+    if (path === "/" || path === "" || path === BASE || path === BASE + "/") {
       navigate("/docs/overview");
     }
   }, [path]);
