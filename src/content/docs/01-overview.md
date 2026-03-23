@@ -34,7 +34,7 @@ Your integration follows four steps:
 | **Product Lifecycle** | The publication state of a product: `DRAFT` (initial) -> `PUBLISHED` (visible in catalog) -> `UNPUBLISHED` (removed, can republish) -> `ARCHIVED` (soft-deleted, terminal). |
 | **Fulfillment** | A group of items that need to be fulfilled for an order. A single order may produce one or more fulfillments. |
 | **Fulfillment Item** | An individual line item within a fulfillment. Each item tracks its own status independently. |
-| **Fulfillment Item Status** | The processing state of a fulfillment item: `CREATED` -> `FORWARDED` -> `PROCESSING` -> `SHIPPED` -> `DELIVERED` (terminal). Items can also reach `CANCELLED` or `FAILED` (terminal) from any non-terminal state. |
+| **Fulfillment Item Status** | The processing state of a fulfillment item: `CREATED` -> `FORWARDED` -> `PROCESSING` -> `SHIPPED` -> `DELIVERED` (terminal). Items can also reach `FAILED` (terminal) from any non-terminal state. |
 | **Availability** | Whether a product variant is purchasable: `IN_STOCK`, `NEVER_OUT_OF_STOCK` (e.g., print-on-demand), `OUT_OF_STOCK`, or `DISCONTINUED`. |
 
 ### ID Formats

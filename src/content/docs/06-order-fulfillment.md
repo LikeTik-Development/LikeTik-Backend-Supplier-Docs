@@ -67,7 +67,7 @@ X-Rate-Limit-Plan: light
 | `size` | No | `20` | Minimum `1`, maximum `100` | Items per page |
 | `status` | No | Non-terminal | -- | Filter by fulfillment item status |
 
-> **Note:** Without a `status` filter, the endpoint returns items in non-terminal states: `CREATED`, `FORWARDED`, `PROCESSING`, `SHIPPED`, and `FAILED`. Terminal items (`DELIVERED`, `CANCELLED`) are excluded unless you filter for them explicitly.
+> **Note:** Without a `status` filter, the endpoint returns items in non-terminal states: `CREATED`, `FORWARDED`, `PROCESSING`, `SHIPPED`, and `FAILED`. Terminal items (`DELIVERED`) are excluded unless you filter for them explicitly.
 
 ### 6.3 Fulfillment Item Status Transitions
 
@@ -84,16 +84,11 @@ stateDiagram-v2
     FORWARDED --> DELIVERED : Mark delivered
     PROCESSING --> DELIVERED : Mark delivered
     SHIPPED --> DELIVERED : Delivery confirmed
-    CREATED --> CANCELLED : Cancel
-    FORWARDED --> CANCELLED : Cancel
-    PROCESSING --> CANCELLED : Cancel
-    SHIPPED --> CANCELLED : Cancel
     CREATED --> FAILED : Mark failed
     FORWARDED --> FAILED : Mark failed
     PROCESSING --> FAILED : Mark failed
     SHIPPED --> FAILED : Mark failed
     DELIVERED --> [*]
-    CANCELLED --> [*]
     FAILED --> [*]
 ```
 
@@ -106,13 +101,12 @@ stateDiagram-v2
 | `PROCESSING` | 2 | No | Supplier is actively working on the item |
 | `SHIPPED` | 3 | No | Item dispatched with tracking information |
 | `DELIVERED` | 100 | Yes | Item delivered to customer |
-| `CANCELLED` | 100 | Yes | Item cancelled |
-| `FAILED` | 100 | Yes | Fulfillment failed |
+| `FAILED` | 100 | Yes | Fulfillment failed (e.g., out of stock or cancelled) |
 
 **Transition rules:**
 - Non-terminal states move forward only, based on level (e.g., `PROCESSING` at level 2 cannot go back to `FORWARDED` at level 1)
 - `FORWARDED` is optional. You can go from `CREATED` to `PROCESSING` if you do not use a third-party producer
-- Any non-terminal state can transition to a terminal state (`DELIVERED`, `CANCELLED`, `FAILED`)
+- Any non-terminal state can transition to a terminal state (`DELIVERED`, `FAILED`)
 - Terminal states are final. No further transitions allowed
 
 ### 6.4 Mark Items Processing
@@ -192,9 +186,9 @@ curl -X POST https://backend-test.liketik.com/api/v1/supplier/fulfillment/F_a2b2
 
 **Response:** `204 No Content`
 
-### 6.8 Mark Items Failed / Cancelled
+### 6.8 Mark Items Failed
 
-If you cannot fulfill an item, mark it as failed or cancelled. Both need a reason.
+If you cannot fulfill an item (e.g., due to stock issues or cancellation requests), mark it as failed.
 
 **Mark as failed:** `POST /api/v1/supplier/fulfillment/{fulfillment_id}/fail`
 
@@ -205,15 +199,6 @@ If you cannot fulfill an item, mark it as failed or cancelled. Both need a reaso
 }
 ```
 
-**Mark as cancelled:** `POST /api/v1/supplier/fulfillment/{fulfillment_id}/cancel`
+The endpoint returns `204 No Content`. The `reason` field is required and cannot be blank.
 
-```json
-{
-  "item_ids": ["FI_019477f8-1a2b-7c3d-9e4f-5a6b7c8d9e0f"],
-  "reason": "Customer requested cancellation before production started"
-}
-```
-
-Both endpoints return `204 No Content`. The `reason` field is required and cannot be blank.
-
-> **Important:** `DELIVERED`, `CANCELLED`, and `FAILED` are terminal. Once an item reaches one of these states, no further status updates are possible.
+> **Important:** `DELIVERED` and `FAILED` are terminal. Once an item reaches one of these states, no further status updates are possible.

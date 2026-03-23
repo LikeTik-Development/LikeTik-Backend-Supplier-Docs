@@ -87,7 +87,7 @@ The API validates all request bodies against standard constraints. Requests that
 | Ship | `tracking_info` | Required |
 | Ship | `tracking_info.carrier` | Required, not blank |
 | Ship | `tracking_info.tracking_number` | Required, not blank |
-| Fail / Cancel | `reason` | Required, not blank |
+| Fail | `reason` | Required, not blank |
 
 **Pagination:**
 
