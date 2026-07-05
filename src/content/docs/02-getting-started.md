@@ -9,21 +9,20 @@ order: 2
 
 Onboarding is **admin-provisioned**. There is no self-service signup. To join as a supplier:
 
-1. **Email LikeTik** at [suppliers@liketik.com](mailto:suppliers@liketik.com) to start the onboarding process
+1. **Email LikeTik** at [support@liketik.com](mailto:support@liketik.com) to start the onboarding process
 2. **LikeTik creates your supplier account** and sets up your access
 3. **You receive your credentials** from the LikeTik team, including:
-   - **Client ID** , your OAuth2 client identifier
-   - **Client Secret** , your OAuth2 client secret (keep this confidential)
-   - **API Base URL** , the base URL for all API requests. The current URL is `https://backend-test.liketik.com/`
-   - **Keycloak Realm URL** , the identity provider URL for authentication (referred to as `{issuer_uri}` throughout this guide)
-   - **Required Scopes** , `openid` and `products.supplier` (include both scopes in every token request)
+   - **Client ID** , your OAuth2 client identifier (format `sup-<uuid>`)
+   - **Client Secret** , your OAuth2 client secret (keep this confidential; it is shown only once)
+   - **Base URL** , one host serves both authentication and the API. Test: `https://id-test.axinity.dev`
+   - **Required Scope** , `products.supplier` (the only scope to request)
 
-> You are connecting to our **testing environment** at `https://backend-test.liketik.com/`. Breaking changes may occur. Products you push here are for integration testing only. The production URL will be provided once your integration is verified. `{issuer_uri}` is a placeholder for the Keycloak realm URL you receive during onboarding.
+> You are connecting to our **testing environment** at `https://id-test.axinity.dev`. Breaking changes may occur. Products you push here are for integration testing only. Production runs at `https://id.axinity.dev`; production credentials are issued once your integration is verified.
 
 ### Next Steps After Receiving Credentials
 
 1. Store your `client_id` and `client_secret` securely (never expose them in client-side code or version control)
-2. Open the [Swagger UI](https://backend-test.liketik.com/docs/supplier/index.html) to see all available endpoints and try them out
+2. Open the [Swagger UI](https://id-test.axinity.dev/docs/supplier/index.html) to see all available endpoints and try them out
 3. Test connectivity by [requesting an access token](/docs/authentication#step-2-request-an-access-token)
 4. Confirm your account by [retrieving your supplier profile](/docs/supplier-profile)
 5. Start [creating products](/docs/product-management)

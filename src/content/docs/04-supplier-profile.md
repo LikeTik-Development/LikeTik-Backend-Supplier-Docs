@@ -10,7 +10,7 @@ Once authenticated, pull your supplier profile to verify the integration works. 
 ### Retrieve Your Profile
 
 ```bash
-curl -X GET https://backend-test.liketik.com/api/v1/supplier/profile/me \
+curl -X GET https://id-test.axinity.dev/api/v1/supplier/profile/me \
   -H "Authorization: Bearer ${ACCESS_TOKEN}"
 ```
 
@@ -41,7 +41,7 @@ Content-Type: application/json
 | `status` | String | Account status. Must be `ACTIVE` to use the API |
 | `discount_percent` | Number | Your negotiated discount percentage |
 
-> **Note:** Your supplier profile is read-only. To change any details, contact the LikeTik team at [suppliers@liketik.com](mailto:suppliers@liketik.com).
+> **Note:** Your supplier profile is read-only. To change any details, contact the LikeTik team at [support@liketik.com](mailto:support@liketik.com).
 
 ### Error Responses
 

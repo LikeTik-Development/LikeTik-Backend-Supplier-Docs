@@ -5,15 +5,15 @@ group: Getting Started
 order: 1
 ---
 
-> This API is under active development — breaking changes to endpoints, schemas, and auth flows may occur. Always check the [Swagger UI](https://backend-test.liketik.com/docs/supplier/index.html) for the latest details.
+> This API is under active development — breaking changes to endpoints, schemas, and auth flows may occur. Always check the [Swagger UI](https://id-test.axinity.dev/docs/supplier/index.html) for the latest details.
 
 The current API base URL is:
 
 ```
-https://backend-test.liketik.com/
+https://id-test.axinity.dev/
 ```
 
-You can explore all available endpoints, request/response schemas, and test calls interactively in the [Swagger UI](https://backend-test.liketik.com/docs/supplier/index.html). We recommend keeping it open while you integrate.
+You can explore all available endpoints, request/response schemas, and test calls interactively in the [Swagger UI](https://id-test.axinity.dev/docs/supplier/index.html). We recommend keeping it open while you integrate.
 
 LikeTik connects suppliers with creators who sell products on TikTok. You provide products and fulfill orders. LikeTik takes care of the storefront, creator relationships, and the customer-facing side.
 
@@ -21,7 +21,7 @@ Your integration follows four steps:
 
 1. **Onboarding** , LikeTik provisions your account and sends you API credentials
 2. **Authentication** , you obtain OAuth2 tokens to call the API
-3. **Product catalog** , you create and manage your product listings
+3. **Product catalog** , you create and manage your product listings, one call at a time or in [bulk batches of up to 5,000 items](/docs/product-management#512-bulk-imports)
 4. **Order fulfillment** , you receive fulfillment requests and update their status as you process, ship, and deliver items
 
 ### Key Concepts
@@ -66,16 +66,16 @@ This diagram shows the full supplier journey from onboarding through fulfillment
 sequenceDiagram
     participant Admin as LikeTik Admin
     participant Supplier as Supplier
-    participant Keycloak as Keycloak (Auth)
+    participant Auth as LikeTik Auth
     participant API as LikeTik API
     participant Customer as Customer (TikTok)
 
     Note over Admin,Supplier: Onboarding
     Admin->>Supplier: Provision credentials (client_id, client_secret)
 
-    Note over Supplier,Keycloak: Authentication
-    Supplier->>Keycloak: POST /token (client credentials)
-    Keycloak->>Supplier: access_token + refresh_token
+    Note over Supplier,Auth: Authentication
+    Supplier->>Auth: POST /oauth2/token (client credentials)
+    Auth->>Supplier: access_token
 
     Note over Supplier,API: Product Catalog
     Supplier->>API: POST /supplier/products (create product)

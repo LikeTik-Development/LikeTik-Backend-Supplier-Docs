@@ -21,7 +21,7 @@ Here is how the fulfillment flow works:
 Poll for fulfillment items assigned to you.
 
 ```bash
-curl -X GET "https://backend-test.liketik.com/api/v1/supplier/fulfillment?page=1&size=20" \
+curl -X GET "https://id-test.axinity.dev/api/v1/supplier/fulfillment?page=1&size=20" \
   -H "Authorization: Bearer ${ACCESS_TOKEN}"
 ```
 
@@ -114,7 +114,7 @@ stateDiagram-v2
 Tell the API you started working on these items.
 
 ```bash
-curl -X POST https://backend-test.liketik.com/api/v1/supplier/fulfillment/F_a2b29477-1a2b-5c3d-9e4f-5a6b7c8d9e0f/process \
+curl -X POST https://id-test.axinity.dev/api/v1/supplier/fulfillment/F_a2b29477-1a2b-5c3d-9e4f-5a6b7c8d9e0f/process \
   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
   -H "Content-Type: application/json" \
   -d '{
@@ -148,7 +148,7 @@ Mark items as forwarded to a third-party producer. This step is optional and onl
 Mark items as shipped. You must include tracking information.
 
 ```bash
-curl -X POST https://backend-test.liketik.com/api/v1/supplier/fulfillment/F_a2b29477-1a2b-5c3d-9e4f-5a6b7c8d9e0f/ship \
+curl -X POST https://id-test.axinity.dev/api/v1/supplier/fulfillment/F_a2b29477-1a2b-5c3d-9e4f-5a6b7c8d9e0f/ship \
   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
   -H "Content-Type: application/json" \
   -d '{
@@ -176,7 +176,7 @@ curl -X POST https://backend-test.liketik.com/api/v1/supplier/fulfillment/F_a2b2
 Confirm delivery to the customer. This is a terminal state, no further updates allowed.
 
 ```bash
-curl -X POST https://backend-test.liketik.com/api/v1/supplier/fulfillment/F_a2b29477-1a2b-5c3d-9e4f-5a6b7c8d9e0f/deliver \
+curl -X POST https://id-test.axinity.dev/api/v1/supplier/fulfillment/F_a2b29477-1a2b-5c3d-9e4f-5a6b7c8d9e0f/deliver \
   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
   -H "Content-Type: application/json" \
   -d '{

@@ -14,4 +14,4 @@ LikeTik will add outbound webhook notifications for real-time event delivery. On
 
 Payload schemas, signing mechanisms, and retry behavior will be documented when the feature launches. Until then, use the [polling-based approach](/docs/order-fulfillment#62-retrieve-fulfillment-items) to retrieve new fulfillment items via `GET /api/v1/supplier/fulfillment`.
 
-Questions about upcoming webhook support? Contact [suppliers@liketik.com](mailto:suppliers@liketik.com).
+Questions about upcoming webhook support? Contact [support@liketik.com](mailto:support@liketik.com).

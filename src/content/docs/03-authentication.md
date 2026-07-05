@@ -5,25 +5,28 @@ group: Getting Started
 order: 3
 ---
 
-LikeTik authenticates API requests with **OAuth2 Authorization Code** flow via Keycloak. Every API request must carry a valid access token in the `Authorization` header.
+LikeTik authenticates API requests with the **OAuth2 Client Credentials** flow (machine-to-machine). Every API request must carry a valid access token in the `Authorization` header. There is no browser redirect, no user login, and no refresh token: your integration requests a token directly with its credentials whenever it needs one.
 
 ### Step 1: Obtain Credentials
 
-Your LikeTik admin gives you a `client_id`, `client_secret`, and the `{issuer_uri}` for your Keycloak realm (see [Getting Started](/docs/getting-started)).
+Your LikeTik admin gives you a `client_id` (format `sup-<uuid>`) and a `client_secret` (see [Getting Started](/docs/getting-started)). The auth server and the API live on the same host:
+
+| Environment | Base URL |
+|-------------|----------|
+| Test | `https://id-test.axinity.dev` |
+| Production | `https://id.axinity.dev` (credentials issued at go-live) |
 
 ### Step 2: Request an Access Token
 
-Exchange your credentials for an access token by sending a `POST` request to the Keycloak token endpoint:
+Exchange your credentials for an access token by sending a `POST` request to the token endpoint:
 
 ```bash
-curl -X POST {issuer_uri}/protocol/openid-connect/token \
+curl -X POST https://id-test.axinity.dev/oauth2/token \
   -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "grant_type=authorization_code" \
+  -d "grant_type=client_credentials" \
+  -d "scope=products.supplier" \
   -d "client_id=YOUR_CLIENT_ID" \
-  -d "client_secret=YOUR_CLIENT_SECRET" \
-  -d "scope=openid products.supplier" \
-  -d "code=AUTHORIZATION_CODE" \
-  -d "redirect_uri=YOUR_REDIRECT_URI"
+  -d "client_secret=YOUR_CLIENT_SECRET"
 ```
 
 ```http
@@ -32,102 +35,74 @@ Content-Type: application/json
 
 {
   "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "expires_in": 300,
-  "refresh_expires_in": 1800,
   "token_type": "Bearer",
-  "scope": "openid products.supplier"
+  "expires_in": 21600,
+  "scope": "products.supplier"
 }
 ```
+
+HTTP Basic authentication (`-u YOUR_CLIENT_ID:YOUR_CLIENT_SECRET`) works as an alternative to passing the credentials in the body.
 
 **Required parameters:**
 
 | Parameter | Value | Description |
 |-----------|-------|-------------|
-| `grant_type` | `authorization_code` | The OAuth2 grant type |
+| `grant_type` | `client_credentials` | The OAuth2 grant type. No other grant is enabled for supplier clients |
+| `scope` | `products.supplier` | Grants full access to supplier APIs: products, bulk imports, fulfillment, and profile |
 | `client_id` | Your client ID | Provided during onboarding |
 | `client_secret` | Your client secret | Provided during onboarding |
-| `scope` | `openid products.supplier` | Required scopes for supplier API access |
-| `code` | Authorization code | Obtained from the authorization endpoint |
-| `redirect_uri` | Your redirect URI | Must match the registered redirect URI |
 
-**Required scopes:**
-
-| Scope | Purpose |
-|-------|---------|
-| `openid` | Required for authentication. Returns an ID token with user identity claims |
-| `products.supplier` | Grants full access to supplier APIs: products, fulfillment, and profile |
-
-> **Note:** Your account needs the `ProductSupplier` role (mapped from `resource_access.backend.roles` in the Keycloak token). LikeTik assigns this role during onboarding.
+> **Note:** The token automatically carries the `ProductSupplier` role and your supplier identity (`product_supplier.id` claim). Every API call is scoped to your own supplier account; you never pass your supplier ID yourself.
 
 ### Step 3: Use the Token in Requests
 
 Add the access token to the `Authorization` header on every API request:
 
 ```bash
-curl -X GET https://backend-test.liketik.com/api/v1/supplier/profile/me \
+curl -X GET https://id-test.axinity.dev/api/v1/supplier/profile/me \
   -H "Authorization: Bearer ${ACCESS_TOKEN}"
 ```
 
 ### Step 4: Handle Token Expiry
 
-Access tokens are short-lived (around 5 minutes). When yours expires, use the refresh token to get a new one without re-authenticating:
+Access tokens live **6 hours** (`expires_in: 21600` seconds). There are no refresh tokens in the client credentials flow; when a token expires, simply request a new one (Step 2). Two practical strategies:
 
-```bash
-curl -X POST {issuer_uri}/protocol/openid-connect/token \
-  -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "grant_type=refresh_token" \
-  -d "client_id=YOUR_CLIENT_ID" \
-  -d "client_secret=YOUR_CLIENT_SECRET" \
-  -d "refresh_token=YOUR_REFRESH_TOKEN"
-```
+- Track `expires_in` and request a fresh token shortly before expiry, or
+- Request a new token whenever the API answers `401 Unauthorized`.
 
-```http
-HTTP/1.1 200 OK
-Content-Type: application/json
-
-{
-  "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "expires_in": 300,
-  "refresh_expires_in": 1800,
-  "token_type": "Bearer",
-  "scope": "openid products.supplier"
-}
-```
-
-> **Tip:** Track the `expires_in` field (in seconds) and refresh your token before it expires. Refresh tokens last longer (around 30 minutes) but they expire too, forcing a full re-authentication. Exact lifetimes depend on realm configuration.
+Token requests are cheap; do not cache tokens across process restarts or share them between systems.
 
 ### Step 5: Handle Authentication Errors
 
 | HTTP Status | Cause | Resolution |
 |-------------|-------|------------|
-| `401 Unauthorized` | Token expired, malformed, or missing | Refresh the token (Step 4). If the refresh token also expired, re-authenticate from Step 2 |
-| `403 Forbidden` | Token valid but lacks the required role or scope | Check that your token includes the `products.supplier` scope and `ProductSupplier` role. Contact [suppliers@liketik.com](mailto:suppliers@liketik.com) if your account is misconfigured |
+| `401 invalid_client` (token endpoint) | Wrong `client_id` or `client_secret` | Verify the credentials from onboarding. Contact [support@liketik.com](mailto:support@liketik.com) if you need them re-issued (secrets are shown only once) |
+| `401 Unauthorized` (API calls) | Token expired, malformed, or missing | Request a new token (Step 2) and retry |
+| `403 Forbidden` (API calls) | Supplier account inactive, or the token lacks the `products.supplier` scope | See [Troubleshooting](/docs/troubleshooting). Contact [support@liketik.com](mailto:support@liketik.com) if your account needs activation |
 
 ### Authentication Flow
 
 ```mermaid
 sequenceDiagram
-    participant Supplier as Supplier
-    participant Keycloak as Keycloak
+    participant Supplier as Your System
+    participant Auth as LikeTik Auth Server
     participant API as LikeTik API
 
-    Supplier->>Keycloak: POST /token (authorization_code grant)
-    Keycloak->>Supplier: access_token + refresh_token (expires_in: 300s)
+    Supplier->>Auth: POST /oauth2/token (client_credentials grant)
+    Auth->>Supplier: access_token (expires_in: 21600s)
 
     loop While access_token is valid
         Supplier->>API: GET /api/v1/supplier/... (Bearer token)
         API->>Supplier: 200 OK (response data)
     end
 
-    Note over Supplier,API: Token expires after ~5 minutes
+    Note over Supplier,API: Token expires after 6 hours
 
     Supplier->>API: GET /api/v1/supplier/... (expired token)
     API->>Supplier: 401 Unauthorized
 
-    Supplier->>Keycloak: POST /token (refresh_token grant)
-    Keycloak->>Supplier: New access_token + refresh_token
+    Supplier->>Auth: POST /oauth2/token (client_credentials grant)
+    Auth->>Supplier: New access_token
 
     Supplier->>API: GET /api/v1/supplier/... (new Bearer token)
     API->>Supplier: 200 OK (response data)

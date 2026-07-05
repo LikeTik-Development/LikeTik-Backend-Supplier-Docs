@@ -99,7 +99,7 @@ The API validates all request bodies against standard constraints. Requests that
 | Fulfillment list | `page` | Minimum 1 (default: 1) |
 | Fulfillment list | `size` | Minimum 1, maximum 100 (default: 20) |
 
-For full field-level validation details, see the [Swagger UI](https://backend-test.liketik.com/docs/supplier/index.html).
+For full field-level validation details, see the [Swagger UI](https://id-test.axinity.dev/docs/supplier/index.html).
 
 ### 8.3 Image Requirements
 

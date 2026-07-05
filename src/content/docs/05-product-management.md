@@ -31,7 +31,7 @@ Every product starts in `DRAFT` state and must be published explicitly. Each pro
 Create a new product with one or more variants. It starts in `DRAFT` state.
 
 ```bash
-curl -X POST https://backend-test.liketik.com/api/v1/supplier/products \
+curl -X POST https://id-test.axinity.dev/api/v1/supplier/products \
   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
   -H "Content-Type: application/json" \
   -d '{
@@ -136,7 +136,7 @@ X-Rate-Limit-Plan: heavy
 | `packaging` | Object | Required |
 | `position` | Integer | Positive or zero. Position `0` = representative variant |
 
-Check [Swagger UI](https://backend-test.liketik.com/docs/supplier/index.html) for the full request schema, including optional fields (colors, textile details, POD configuration).
+Check [Swagger UI](https://id-test.axinity.dev/docs/supplier/index.html) for the full request schema, including optional fields (colors, textile details, POD configuration).
 
 #### Optional Variant Fields
 
@@ -260,14 +260,14 @@ For print-on-demand products, you can define print placements and options:
 | `print_options[].surcharge` | Object | Extra cost for this option |
 | `print_options[].allowed_technique_keys` | Array | Which techniques this option applies to |
 
-See [Swagger UI](https://backend-test.liketik.com/docs/supplier/index.html) for the complete schema with all nested field details.
+See [Swagger UI](https://id-test.axinity.dev/docs/supplier/index.html) for the complete schema with all nested field details.
 
 ### 5.2 Update Product Variant
 
 Update a variant's pricing, availability, images, or other attributes.
 
 ```bash
-curl -X PUT https://backend-test.liketik.com/api/v1/supplier/products/P_8f14e45f-ceea-5367-b3c5-1a8e3c7f0c42/variants/PV_3c9a7e6b-d4f2-5a1e-8b7c-9d0e1f2a3b4c \
+curl -X PUT https://id-test.axinity.dev/api/v1/supplier/products/P_8f14e45f-ceea-5367-b3c5-1a8e3c7f0c42/variants/PV_3c9a7e6b-d4f2-5a1e-8b7c-9d0e1f2a3b4c \
   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
   -H "Content-Type: application/json" \
   -d '{
@@ -352,7 +352,7 @@ Add a new variant to an existing product. Use this for additional sizes, colors,
 
 **Endpoint:** `POST /api/v1/supplier/products/{product_id}/variants`
 
-The request body uses the same variant schema as the create product request. Check [Swagger UI](https://backend-test.liketik.com/docs/supplier/index.html) for the full schema.
+The request body uses the same variant schema as the create product request. Check [Swagger UI](https://id-test.axinity.dev/docs/supplier/index.html) for the full schema.
 
 **Response:** `200 OK` with `SuccessResponse`.
 
@@ -381,7 +381,7 @@ Control your product's visibility in the catalog.
 **Publish** to make a product visible:
 
 ```bash
-curl -X PUT https://backend-test.liketik.com/api/v1/supplier/products/P_8f14e45f-ceea-5367-b3c5-1a8e3c7f0c42/publish \
+curl -X PUT https://id-test.axinity.dev/api/v1/supplier/products/P_8f14e45f-ceea-5367-b3c5-1a8e3c7f0c42/publish \
   -H "Authorization: Bearer ${ACCESS_TOKEN}"
 ```
 
@@ -401,7 +401,7 @@ X-Rate-Limit-Plan: standard
 **Unpublish** to pull a product from the catalog. You can republish it later:
 
 ```bash
-curl -X PUT https://backend-test.liketik.com/api/v1/supplier/products/P_8f14e45f-ceea-5367-b3c5-1a8e3c7f0c42/unpublish \
+curl -X PUT https://id-test.axinity.dev/api/v1/supplier/products/P_8f14e45f-ceea-5367-b3c5-1a8e3c7f0c42/unpublish \
   -H "Authorization: Bearer ${ACCESS_TOKEN}"
 ```
 
@@ -480,7 +480,7 @@ Soft-delete a product by archiving it. Archived products cannot be republished.
 List and filter your products with pagination.
 
 ```bash
-curl -X GET "https://backend-test.liketik.com/api/v1/supplier/products/search?supplier_id=EXTERNAL_SUP_acme-prints&page=1&size=20" \
+curl -X GET "https://id-test.axinity.dev/api/v1/supplier/products/search?supplier_id=EXTERNAL_SUP_acme-prints&page=1&size=20" \
   -H "Authorization: Bearer ${ACCESS_TOKEN}"
 ```
 
@@ -529,7 +529,7 @@ X-Rate-Limit-Plan: light
 Pre-calculate the internal LikeTik IDs for a product and variant based on your supplier-defined identifiers. This is a stateless utility endpoint. It does not create any resources.
 
 ```bash
-curl -X GET "https://backend-test.liketik.com/api/v1/supplier/products/ids/calculate?supplier_product_id=AP-TSHIRT-001&supplier_variant_id=AP-TSHIRT-001-BLK-XL" \
+curl -X GET "https://id-test.axinity.dev/api/v1/supplier/products/ids/calculate?supplier_product_id=AP-TSHIRT-001&supplier_variant_id=AP-TSHIRT-001-BLK-XL" \
   -H "Authorization: Bearer ${ACCESS_TOKEN}"
 ```
 
@@ -547,28 +547,81 @@ Content-Type: application/json
 
 > **Tip:** Call this before creating a product to get internal IDs ahead of time. You can store these references in your own database without creating the product first.
 
-### 5.11 Upload Product Images
+### 5.11 Product Images
 
-You can upload product images to the LikeTik CDN instead of hosting them yourself. Uploaded images are served by LikeTik and you can reference them in your product variant image URLs.
+You do **not** upload images to LikeTik. Put your own publicly fetchable image URLs in the `images[].url` field when creating products or variants; LikeTik downloads and mirrors them onto its CDN automatically during import.
 
-**Endpoint:** `POST /api/v1/cdn/images`
+- URLs must be publicly reachable (they are fetched with the User-Agent `LikeTik/1.0`)
+- JPEG, PNG, and WebP are supported; keep individual files under ~10 MB
+- `width`/`height` in the payload are metadata only; LikeTik serves optimized renditions itself
 
-**Rate Limit:** `heavy`
+If you cannot host images publicly, contact [support@liketik.com](mailto:support@liketik.com) to discuss alternatives.
 
-**Request:** Multipart form data with the image file and a category.
+### 5.12 Bulk Imports
 
-**Response** `201 Created`:
+For catalog synchronization at scale, use the asynchronous bulk import endpoints instead of one call per product. You submit a batch, receive a `job_id` immediately, and poll the job until it completes. Items are processed independently: one failing item never blocks the rest, and every item reports its own result.
+
+**Endpoints:**
+
+| Purpose | Endpoint | Body |
+|---------|----------|------|
+| Bulk create/update products | `POST /api/v1/supplier/imports/products` | `{"items": [<product>, ...]}` where each `<product>` is the same object as [5.1 Create Product](#51-create-product) |
+| Bulk update prices | `POST /api/v1/supplier/imports/prices` | `{"items": [{"supplier_product_id", "supplier_variant_id", "purchase_price", "delivery_price"?}, ...]}` |
+| Bulk update stock | `POST /api/v1/supplier/imports/stock` | `{"items": [{"supplier_product_id", "supplier_variant_id", "quantity", "min_handling_days"?, "max_handling_days"?}, ...]}` |
+| Poll job status | `GET /api/v1/supplier/imports/{job_id}` | - |
+
+All items are keyed by **your** `supplier_product_id` / `supplier_variant_id`; you never need LikeTik-internal IDs for bulk operations. Maximum **5,000 items per request** (`400 Bad Request` beyond that). Price updates via bulk import do not reset a product's moderation status.
+
+**Submit** (`202 Accepted`):
+
+```bash
+curl -X POST https://id-test.axinity.dev/api/v1/supplier/imports/prices \
+  -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "items": [
+      {
+        "supplier_product_id": "AP-TSHIRT-001",
+        "supplier_variant_id": "AP-TSHIRT-001-BLK-XL",
+        "purchase_price": {"prices": {"DEU": {"amount": 1799, "currency": "EUR"}}}
+      }
+    ]
+  }'
+```
 
 ```http
-HTTP/1.1 201 Created
+HTTP/1.1 202 Accepted
 Content-Type: application/json
-Location: https://cdn.liketik.com/images/abc123.jpg
 
 {
-  "uri": "https://cdn.liketik.com/images/abc123.jpg"
+  "job_id": "6f2c1e0a4b8d4c21a7e9d3f5b0a18c42"
 }
 ```
 
-Use the returned `uri` as the `url` field in product variant images (see [5.1 Create Product](#51-create-product)).
+**Poll** (`200 OK`):
 
-> **Note:** This endpoint uses the `heavy` rate limit plan (5 burst, 2 req/s). Plan your image uploads accordingly.
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "job_id": "6f2c1e0a4b8d4c21a7e9d3f5b0a18c42",
+  "type": "PRICES",
+  "status": "COMPLETED",
+  "total": 1,
+  "processed": 1,
+  "succeeded": 1,
+  "failed": 0,
+  "results": [
+    {
+      "supplier_product_id": "AP-TSHIRT-001",
+      "supplier_variant_id": "AP-TSHIRT-001-BLK-XL",
+      "status": "ACCEPTED",
+      "internal_id": "PV_3c9a7e6b-d4f2-5a1e-8b7c-9d0e1f2a3b4c",
+      "error": null
+    }
+  ]
+}
+```
+
+`status` moves `PENDING` -> `RUNNING` -> `COMPLETED`. Per-item `status` is `ACCEPTED` or `FAILED` with a human-readable `error`. Poll every few seconds; jobs of a few thousand items typically complete within a couple of minutes. Job status is visible only to the supplier that submitted it (`404` otherwise).
