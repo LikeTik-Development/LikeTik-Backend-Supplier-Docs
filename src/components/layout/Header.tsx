@@ -53,7 +53,7 @@ export function Header({ onMobileMenuToggle, mobileOpen, onSearchOpen }: HeaderP
             <ExternalLink size={12} />
           </a>
           <a
-            href="https://backend-test.liketik.com/docs/supplier/index.html"
+            href="https://id-test.axinity.dev/docs/supplier/index.html"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-md border border-zinc-800 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50 transition-colors"
