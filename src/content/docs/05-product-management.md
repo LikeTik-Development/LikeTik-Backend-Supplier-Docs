@@ -36,6 +36,7 @@ curl -X POST https://id-test.axinity.dev/api/v1/supplier/products \
   -H "Content-Type: application/json" \
   -d '{
     "supplier_product_id": "AP-TSHIRT-001",
+    "age_restriction": { "default_value": 0 },
     "variants": [
       {
         "supplier_variant_id": "AP-TSHIRT-001-BLK-XL",
@@ -547,9 +548,42 @@ Content-Type: application/json
 
 > **Tip:** Call this before creating a product to get internal IDs ahead of time. You can store these references in your own database without creating the product first.
 
+### 5.10a Age restriction (required)
+
+Every product **must** include a top-level `age_restriction` object (a sibling of `supplier_product_id` and `variants`, not inside a variant). It applies to the whole product.
+
+```json
+"age_restriction": {
+  "default_value": 0,
+  "country_overrides": { "DEU": 18 }
+}
+```
+
+- `default_value` (integer 0-100, **required**): the minimum buyer age. Use **`0`** for products with no age restriction (the common case).
+- `country_overrides` (optional): a per-country minimum age keyed by ISO 3166-1 alpha-3 code, e.g. `{ "DEU": 18 }`. Omit it entirely if you do not need country-specific ages.
+
+Omitting `age_restriction` returns `400 Bad Request`.
+
 ### 5.11 Product Images
 
-You do **not** upload images to LikeTik. Put your own publicly fetchable image URLs in the `images[].url` field when creating products or variants; LikeTik downloads and mirrors them onto its CDN automatically during import.
+Product images use **URL mirroring**: put your own publicly fetchable image URL in each variant's `images[].url` field when creating the product or variant, and LikeTik downloads and mirrors it onto its CDN automatically. There is **no separate upload step** and you should **not** call any `/cdn/images` endpoint for product images (that endpoint is for avatars and custom-product art, not the product feed).
+
+Each entry in a variant's `images` array:
+
+```json
+"images": [
+  {
+    "url": "https://your-domain.example/img/18563100.jpg",
+    "mime_type": "image/jpeg",
+    "alt_text": "Towel stand Recco",
+    "position": 0,
+    "width": 1200,
+    "height": 1200
+  }
+]
+```
+
+Your `url` must be publicly reachable (we fetch it with the User-Agent `LikeTik/1.0`). JPEG, PNG, and WebP are supported; `width`/`height` are metadata only.
 
 - URLs must be publicly reachable (they are fetched with the User-Agent `LikeTik/1.0`)
 - JPEG, PNG, and WebP are supported; keep individual files under ~10 MB
